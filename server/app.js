@@ -33,18 +33,33 @@ var oa = new OAuth(oauth_base_url+'request_token',
 
 
 app.get('/', function(req, res) {
-  res.render('index');
+  var is_logged_in = false;
+  if (req.session.oauth_access_token &&
+      req.session.oauth_access_token_secret) {
+    is_logged_in = true;
+  }
+
+  console.log(is_logged_in);
+  res.render('index', {is_logged_in:is_logged_in});
 });
 
 app.get('/login', function(req, res) {
   console.log(require('sys').inspect(req.session));
+  var parsed_url = url.parse(req.url, true);
 
   oa.getOAuthRequestToken(
     function(error, oauth_token, oauth_token_secret, results) {
-      console.log(oauth_token);
       req.session.oauth_token_secret = oauth_token_secret;
       req.session.oauth_token = oauth_token;
-      res.redirect(oauth_base_url+'authorize?oauth_token='+oauth_token, 303);
+
+      var redirect_url = oauth_base_url+'authorize?oauth_token='+oauth_token;
+      // return a json response with the redirect url
+      // purpose: iFrame party
+      if (parsed_url.query.json === 'true') {
+        res.json({redirect:redirect_url});
+      } else {
+        res.redirect(redirect_url, 303);
+      }
   });
 });
 
@@ -59,16 +74,16 @@ app.get('/oauth/callback', function(req, res) {
       // the good stuff
       req.session.oauth_access_token = oauth_access_token;
       req.session.oauth_access_token_secret = oauth_access_token_secret;
-      res.send({status:'ok', message:'Logged in to Tumblr.'});
+      res.json({success:true});
     });
 });
 
-app.get('/dashboard', function(req, res) {
-    oa.getProtectedResource(api_base_url+'user/dashboard', 'GET',
+app.get('/user/dashboard', function(req, res) {
+    oa.getProtectedResource(api_base_url+'user/dashboard?type=audio', 'GET',
                             req.session.oauth_access_token,
                             req.session.oauth_access_token_secret,
       function(error, data) {
-        res.send(data);
+        res.json(JSON.parse(data));
       });
 });
 

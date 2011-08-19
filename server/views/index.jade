@@ -1,3 +1,6 @@
 h1 Listenr
 
-a#login(href='/login') Log in to Tumblr
+- if (is_logged_in)
+  p You are logged in.
+- else
+  a#login(href='/login') Login to Tumblr
