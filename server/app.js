@@ -56,12 +56,20 @@ app.get('/oauth/callback', function(req, res) {
                          req.session.oauth_token_secret,
                          parsed_url.query.oauth_verifier,
     function(error, oauth_access_token, oauth_access_token_secret, results) {
-      oa.getProtectedResource(api_base_url+'user/dashboard', 'GET',
-                              oauth_access_token, oauth_access_token_secret,
-        function(error, data) {
-          res.send(data);
-        });
+      // the good stuff
+      req.session.oauth_access_token = oauth_access_token;
+      req.session.oauth_access_token_secret = oauth_access_token_secret;
+      res.send({status:'ok', message:'Logged in to Tumblr.'});
     });
+});
+
+app.get('/dashboard', function(req, res) {
+    oa.getProtectedResource(api_base_url+'user/dashboard', 'GET',
+                            req.session.oauth_access_token,
+                            req.session.oauth_access_token_secret,
+      function(error, data) {
+        res.send(data);
+      });
 });
 
 app.listen(3000);
