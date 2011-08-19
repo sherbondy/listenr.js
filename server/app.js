@@ -53,13 +53,7 @@ app.get('/login', function(req, res) {
       req.session.oauth_token = oauth_token;
 
       var redirect_url = oauth_base_url+'authorize?oauth_token='+oauth_token;
-      // return a json response with the redirect url
-      // purpose: iFrame party
-      if (parsed_url.query.json === 'true') {
-        res.json({redirect:redirect_url});
-      } else {
-        res.redirect(redirect_url, 303);
-      }
+      res.redirect(redirect_url, 303);
   });
 });
 
@@ -74,7 +68,11 @@ app.get('/oauth/callback', function(req, res) {
       // the good stuff
       req.session.oauth_access_token = oauth_access_token;
       req.session.oauth_access_token_secret = oauth_access_token_secret;
-      res.json({success:true});
+      if (!error) {
+        res.redirect('/', 303);
+      } else {
+        console.log(error);
+      }
     });
 });
 
