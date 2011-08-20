@@ -55,6 +55,18 @@
           song.set(key, value);
         }
       }
+      if (!song.artist) {
+        song.set('artist', 'Unkown Artist');
+      }
+      if (!song.track_name) {
+        song.set('track_name', 'Unknown Song');
+      }
+      if (!song.album) {
+        song.set('album', 'Unkown Album');
+      }
+      if (!song.album_art) {
+        song.set('album_art', '/img/album.png');
+      }
       song.set('origin', 'dashboard');
       this.pushObject(song);
       return console.log(song.album_art);

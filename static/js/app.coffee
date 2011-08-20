@@ -48,6 +48,10 @@ Listenr.dashboardController = SC.ArrayProxy.create {
     for key, value of song_data
       if Listenr.Song.prototype.hasOwnProperty key
         song.set key, value
+    if not song.artist then song.set 'artist', 'Unkown Artist'
+    if not song.track_name then song.set 'track_name', 'Unknown Song'
+    if not song.album then song.set 'album', 'Unkown Album'
+    if not song.album_art then song.set 'album_art', '/img/album.png'
     song.set 'origin', 'dashboard'
     this.pushObject song
     console.log song.album_art
