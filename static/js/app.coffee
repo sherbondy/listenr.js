@@ -32,6 +32,7 @@ Listenr.Song = SC.Object.extend {
   album: null
   album_art: null
   caption: null
+  audio_url: null
   post_url: null
   post_date: null
   blog_name: null
@@ -48,19 +49,28 @@ Listenr.dashboardController = SC.ArrayProxy.create {
     for key, value of song_data
       if Listenr.Song.prototype.hasOwnProperty key
         song.set key, value
+        if key is 'audio_url'
+          song.set key, value+'?plead=please-dont-download-this-or-our-lawyers-wont-let-us-host-audio'
     if not song.artist then song.set 'artist', 'Unkown Artist'
     if not song.track_name then song.set 'track_name', 'Unknown Song'
     if not song.album then song.set 'album', 'Unkown Album'
     if not song.album_art then song.set 'album_art', '/img/album.png'
     song.set 'origin', 'dashboard'
     this.pushObject song
-    console.log song.album_art
+    console.log song_data
+
+  loading: false
 
   getSongs: (offset=this.content.length)->
     that = this
-    $.getJSON 'user/dashboard', {type:'audio', offset:offset}, (data)->
-      for song in data.response.posts
-        that.addSong song
+    if not that.loading
+      that.loading = true # to avoid spawning heaps of requests
+      console.log "offset #{offset}"
+
+      $.getJSON 'user/dashboard', {type:'audio', offset:offset}, (data)->
+        that.loading = false
+        for song in data.response.posts
+          that.addSong song
 }
 
 ($ document).ready ->
@@ -73,6 +83,11 @@ Listenr.dashboardController = SC.ArrayProxy.create {
     # to avoid breaking out of mobile app mode
     e.preventDefault()
     window.location = ($ this).attr 'href'
+
+  ($ '#listenr li a').live 'click', (e)->
+    e.preventDefault()
+    ($ '#player').attr 'src', ($ this).attr 'href'
+    document.getElementById('player').play()
 
   ($ window).scroll (e)->
     if (($ window).scrollTop() + ($ window).height() + 150) > ($ document).height()

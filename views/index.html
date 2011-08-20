@@ -24,9 +24,11 @@
     <div id="listenr">
       <script type="text/html">
         {{#collection contentBinding="Listenr.dashboardController" tagName="ul"}}
-          <img {{bindAttr src="this.content.album_art"}}>
-          <strong>{{this.content.track_name}}</strong>
-          <em>{{this.content.artist}} — {{this.content.album}}</em>
+          <a {{bindAttr href="this.content.audio_url"}}>
+            <img {{bindAttr src="this.content.album_art"}}>
+            <strong>{{this.content.track_name}}</strong>
+            <em>{{this.content.artist}} — {{this.content.album}}</em>
+          </a>
         {{/collection}}
       </script>
     </div>
@@ -34,6 +36,8 @@
     <script type="text/x-handlebars-template" id="login_template">
       <p><a href="/login" id="login">Login to Tumblr</a></p>
     </script>
+
+    <audio id="player"></audio>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script src="/js/sproutcore-2.0.beta.3.min.js"></script>

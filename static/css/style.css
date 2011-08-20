@@ -27,6 +27,17 @@ header h1 {
   height: 48px;
   border-bottom: 1px solid #ccc;
 }
+#listenr ul li a {
+  display: block;
+  text-decoration: none;
+  color: #000;
+  padding-bottom: 4px;
+}
+#listenr ul li a:hover,
+#listenr ul li a:hover em {
+  color: #fff;
+  background: #069eff;
+}
 #listenr ul li strong,
 #listenr ul li em {
   display: block;

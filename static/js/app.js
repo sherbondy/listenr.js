@@ -37,6 +37,7 @@
     album: null,
     album_art: null,
     caption: null,
+    audio_url: null,
     post_url: null,
     post_date: null,
     blog_name: null,
@@ -53,6 +54,9 @@
         value = song_data[key];
         if (Listenr.Song.prototype.hasOwnProperty(key)) {
           song.set(key, value);
+          if (key === 'audio_url') {
+            song.set(key, value + '?plead=please-dont-download-this-or-our-lawyers-wont-let-us-host-audio');
+          }
         }
       }
       if (!song.artist) {
@@ -69,27 +73,33 @@
       }
       song.set('origin', 'dashboard');
       this.pushObject(song);
-      return console.log(song.album_art);
+      return console.log(song_data);
     },
+    loading: false,
     getSongs: function(offset) {
       var that;
       if (offset == null) {
         offset = this.content.length;
       }
       that = this;
-      return $.getJSON('user/dashboard', {
-        type: 'audio',
-        offset: offset
-      }, function(data) {
-        var song, _i, _len, _ref, _results;
-        _ref = data.response.posts;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          song = _ref[_i];
-          _results.push(that.addSong(song));
-        }
-        return _results;
-      });
+      if (!that.loading) {
+        that.loading = true;
+        console.log("offset " + offset);
+        return $.getJSON('user/dashboard', {
+          type: 'audio',
+          offset: offset
+        }, function(data) {
+          var song, _i, _len, _ref, _results;
+          that.loading = false;
+          _ref = data.response.posts;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            song = _ref[_i];
+            _results.push(that.addSong(song));
+          }
+          return _results;
+        });
+      }
     }
   });
   ($(document)).ready(function() {
@@ -101,6 +111,11 @@
     ($('#login')).live('click', function(e) {
       e.preventDefault();
       return window.location = ($(this)).attr('href');
+    });
+    ($('#listenr li a')).live('click', function(e) {
+      e.preventDefault();
+      ($('#player')).attr('src', ($(this)).attr('href'));
+      return document.getElementById('player').play();
     });
     return ($(window)).scroll(function(e) {
       if ((($(window)).scrollTop() + ($(window)).height() + 150) > ($(document)).height()) {
