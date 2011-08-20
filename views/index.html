@@ -16,21 +16,22 @@
   </head>
 
   <body>
-    <h1>Listenr</h1>
+    <header>
+      <h1>Listenr</h1>
+    </header>
 
     <div id="listenr">
+      <script type="text/html">
+        {{#collection contentBinding="Listenr.dashboardController" tagName="ul"}}
+          <img {{bindAttr src="this.content.album_art"}}>
+          <strong>{{this.content.track_name}}</strong>
+          <em>{{this.content.artist}} — {{this.content.album}}</em>
+        {{/collection}}
+      </script>
     </div>
 
     <script type="text/x-handlebars-template" id="login_template">
       <p><a href="/login" id="login">Login to Tumblr</a></p>
-    </script>
-
-    <script type="text/html">
-      {{#collection contentBinding="Listenr.dashboardController" tagName="ul"}}
-        <img {{bindAttr src="this.content.album_art"}}>
-        <strong>{{this.content.track_name}}</strong>
-        <em>{{this.content.artist}} — {{this.content.album}}</em>
-      {{/collection}}
     </script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>

@@ -1,0 +1,35 @@
+header {
+  text-align: center;
+  color: #fff;
+  background: #450b9b;
+}
+header h1 {
+  margin: 0;
+  font-size: 24px;
+  padding: 8px 0;
+  text-shadow: 0px 1px #000;
+}
+#listenr ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#listenr ul li {
+  margin: 0;
+  padding: 0;
+  height: 48px;
+  border-bottom: 1px solid #ccc;
+}
+#listenr ul li strong,
+#listenr ul li em {
+  display: block;
+}
+#listenr ul li strong {
+  padding-top: 8px;
+}
+#listenr ul li img {
+  width: 48px;
+  height: 48px;
+  margin-right: 8px;
+  float: left;
+}
