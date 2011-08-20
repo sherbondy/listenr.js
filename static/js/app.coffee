@@ -18,7 +18,6 @@ Listenr.User = SC.Object.extend {
           for key, value of data.response.user
             if Listenr.User.prototype.hasOwnProperty key
               that.set key, value
-          console.log that
           return true
         else
           console.log "unexpected status #{data}"
@@ -51,16 +50,13 @@ Listenr.dashboardController = SC.ArrayProxy.create {
         song.set key, value
     song.set 'origin', 'dashboard'
     this.pushObject song
-    console.log song
+    console.log song.album_art
 
   getSongs: (offset=this.content.length)->
     that = this
     $.getJSON 'user/dashboard', {type:'audio', offset:offset}, (data)->
       for song in data.response.posts
-        console.log song
         that.addSong song
-
-      console.log that.content
 }
 
 ($ document).ready ->
@@ -70,6 +66,6 @@ Listenr.dashboardController = SC.ArrayProxy.create {
     Listenr.dashboardController.getSongs()
 
   ($ window).scroll (e)->
-    if (($ window).scrollTop() + ($ window).height()) is ($ document).height()
+    if (($ window).scrollTop() + ($ window).height() + 150) > ($ document).height()
       # scrolled to bottom
       Listenr.dashboardController.getSongs()

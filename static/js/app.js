@@ -22,7 +22,6 @@
                 that.set(key, value);
               }
             }
-            console.log(that);
             return true;
           default:
             console.log("unexpected status " + data);
@@ -58,7 +57,7 @@
       }
       song.set('origin', 'dashboard');
       this.pushObject(song);
-      return console.log(song);
+      return console.log(song.album_art);
     },
     getSongs: function(offset) {
       var that;
@@ -70,14 +69,14 @@
         type: 'audio',
         offset: offset
       }, function(data) {
-        var song, _i, _len, _ref;
+        var song, _i, _len, _ref, _results;
         _ref = data.response.posts;
+        _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           song = _ref[_i];
-          console.log(song);
-          that.addSong(song);
+          _results.push(that.addSong(song));
         }
-        return console.log(that.content);
+        return _results;
       });
     }
   });
@@ -88,7 +87,7 @@
       Listenr.dashboardController.getSongs();
     }
     return ($(window)).scroll(function(e) {
-      if ((($(window)).scrollTop() + ($(window)).height()) === ($(document)).height()) {
+      if ((($(window)).scrollTop() + ($(window)).height() + 150) > ($(document)).height()) {
         return Listenr.dashboardController.getSongs();
       }
     });

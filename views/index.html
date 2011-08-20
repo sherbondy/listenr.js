@@ -27,7 +27,9 @@
 
     <script type="text/html">
       {{#collection contentBinding="Listenr.dashboardController" tagName="ul"}}
+        <img {{bindAttr src="this.content.album_art"}}>
         <strong>{{this.content.track_name}}</strong>
+        <em>{{this.content.artist}} — {{this.content.album}}</em>
       {{/collection}}
     </script>
 
