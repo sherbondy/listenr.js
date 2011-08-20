@@ -23,9 +23,18 @@ header h1 {
 #listenr ul li strong,
 #listenr ul li em {
   display: block;
+  overflow: hidden;
+  white-space: no-wrap;
+  text-overflow: ellipsis;
+  width: 240px;
+  height: 20px;
 }
 #listenr ul li strong {
-  padding-top: 8px;
+  padding-top: 4px;
+}
+#listenr ul li em {
+  font-style: normal;
+  color: #666;
 }
 #listenr ul li img {
   width: 48px;
