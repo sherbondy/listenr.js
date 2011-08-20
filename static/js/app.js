@@ -63,7 +63,7 @@
     getSongs: function(offset) {
       var that;
       if (offset == null) {
-        offset = 0;
+        offset = this.content.length;
       }
       that = this;
       return $.getJSON('user/dashboard', {
@@ -85,7 +85,12 @@
     var me;
     me = Listenr.User.create();
     if (me.getInfo()) {
-      return Listenr.dashboardController.getSongs();
+      Listenr.dashboardController.getSongs();
     }
+    return ($(window)).scroll(function(e) {
+      if ((($(window)).scrollTop() + ($(window)).height()) === ($(document)).height()) {
+        return Listenr.dashboardController.getSongs();
+      }
+    });
   });
 }).call(this);

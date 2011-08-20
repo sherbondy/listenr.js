@@ -53,7 +53,7 @@ Listenr.dashboardController = SC.ArrayProxy.create {
     this.pushObject song
     console.log song
 
-  getSongs: (offset=0)->
+  getSongs: (offset=this.content.length)->
     that = this
     $.getJSON 'user/dashboard', {type:'audio', offset:offset}, (data)->
       for song in data.response.posts
@@ -68,3 +68,8 @@ Listenr.dashboardController = SC.ArrayProxy.create {
   me = Listenr.User.create()
   if me.getInfo()
     Listenr.dashboardController.getSongs()
+
+  ($ window).scroll (e)->
+    if (($ window).scrollTop() + ($ window).height()) is ($ document).height()
+      # scrolled to bottom
+      Listenr.dashboardController.getSongs()
