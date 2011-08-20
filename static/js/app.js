@@ -9,18 +9,24 @@
       that = this;
       return $.post('user/info', function(data) {
         var key, source, value, _ref;
-        if (data.meta.status === 401) {
-          source = ($('#login_template')).html();
-          return ($('#listenr')).html(Handlebars.compile(source));
-        } else {
-          _ref = data.response.user;
-          for (key in _ref) {
-            value = _ref[key];
-            if (Listenr.User.prototype.hasOwnProperty(key)) {
-              that.set(key, value);
+        switch (data.meta.status) {
+          case 401:
+            source = ($('#login_template')).html();
+            ($('#listenr')).html(Handlebars.compile(source));
+            return false;
+          case 200:
+            _ref = data.response.user;
+            for (key in _ref) {
+              value = _ref[key];
+              if (Listenr.User.prototype.hasOwnProperty(key)) {
+                that.set(key, value);
+              }
             }
-          }
-          return console.log(that);
+            console.log(that);
+            return true;
+          default:
+            console.log("unexpected status " + data);
+            return false;
         }
       }, 'json');
     }
@@ -78,6 +84,8 @@
   ($(document)).ready(function() {
     var me;
     me = Listenr.User.create();
-    return me.getInfo();
+    if (me.getInfo()) {
+      return Listenr.dashboardController.getSongs();
+    }
   });
 }).call(this);

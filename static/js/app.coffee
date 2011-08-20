@@ -9,16 +9,20 @@ Listenr.User = SC.Object.extend {
 
     $.post('user/info', (data)->
       # not authorized, present login
-      if data.meta.status is 401
-        source = ($ '#login_template').html()
-        ($ '#listenr').html Handlebars.compile source
-      else
-        for key, value of data.response.user
-          if Listenr.User.prototype.hasOwnProperty key
-            that.set key, value
-
-        console.log that
-
+      switch data.meta.status
+        when 401
+          source = ($ '#login_template').html()
+          ($ '#listenr').html Handlebars.compile source
+          return false
+        when 200
+          for key, value of data.response.user
+            if Listenr.User.prototype.hasOwnProperty key
+              that.set key, value
+          console.log that
+          return true
+        else
+          console.log "unexpected status #{data}"
+          return false
     , 'json')
 }
 
@@ -62,4 +66,5 @@ Listenr.dashboardController = SC.ArrayProxy.create {
 ($ document).ready ->
   #Listenr.dashboardController.getSongs()
   me = Listenr.User.create()
-  me.getInfo()
+  if me.getInfo()
+    Listenr.dashboardController.getSongs()
