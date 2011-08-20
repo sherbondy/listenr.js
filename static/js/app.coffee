@@ -1,5 +1,27 @@
 window.Listenr = SC.Application.create()
 
+Listenr.User = SC.Object.extend {
+  name: null
+  likes: null
+  blogs: null
+  getInfo: ->
+    that = this
+
+    $.post('user/info', (data)->
+      # not authorized, present login
+      if data.meta.status is 401
+        source = ($ '#login_template').html()
+        ($ '#listenr').html Handlebars.compile source
+      else
+        for key, value of data.response.user
+          if Listenr.User.prototype.hasOwnProperty key
+            that.set key, value
+
+        console.log that
+
+    , 'json')
+}
+
 Listenr.Song = SC.Object.extend {
   postID: null
   artist: null
@@ -38,4 +60,6 @@ Listenr.dashboardController = SC.ArrayProxy.create {
 }
 
 ($ document).ready ->
-  Listenr.dashboardController.getSongs()
+  #Listenr.dashboardController.getSongs()
+  me = Listenr.User.create()
+  me.getInfo()

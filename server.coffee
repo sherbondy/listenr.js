@@ -10,12 +10,15 @@ app.configure ->
     app.use express.cookieParser()
     app.use express.session {secret: secrets.session_secret}
     app.use app.router
-    app.set 'view engine', 'jade'
+    app.set 'view options', {layout:false}
+    app.register '.html', {
+      compile: (str, options)->
+        (locals)-> str
+    }
 
 app.configure 'development', ->
     app.use express.static __dirname + '/static'
     app.use express.errorHandler { dumpExceptions: true, showStack: true }
-    app.set 'view options', {development: true}
 
 oauth_base_url = 'http://www.tumblr.com/oauth/'
 api_base_url = 'http://api.tumblr.com/v2'
@@ -29,13 +32,18 @@ oa = new OAuth oauth_base_url+'request_token',
                'http://eps.local:3000/oauth/callback',
                'HMAC-SHA1'
 
+oa.getTumblrResource = (req, res)->
+  oa.getProtectedResource(
+    api_base_url+req.url, req.method,
+    req.session.oauth_access_token,
+    req.session.oauth_access_token_secret,
+    (error, data)->
+      res.json JSON.parse data
+  )
+
 
 app.get '/', (req, res)->
-  if (req.session.oauth_access_token and
-      req.session.oauth_access_token_secret)
-    res.render 'index', {is_logged_in:true}
-  else
-    res.render 'login', {is_logged_in:false}
+  res.render 'index.html'
 
 app.get '/login', (req, res)->
   console.log require('sys').inspect(req.session)
@@ -68,12 +76,9 @@ app.get '/oauth/callback', (req, res)->
   )
 
 app.get '/user/dashboard', (req, res)->
-  oa.getProtectedResource(
-    api_base_url+req.url, 'GET',
-    req.session.oauth_access_token,
-    req.session.oauth_access_token_secret,
-    (error, data)->
-      res.json JSON.parse(data)
-  )
+  oa.getTumblrResource req, res
+
+app.post '/user/info', (req, res)->
+  oa.getTumblrResource req, res
 
 app.listen 3000

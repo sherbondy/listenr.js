@@ -1,5 +1,30 @@
 (function() {
   window.Listenr = SC.Application.create();
+  Listenr.User = SC.Object.extend({
+    name: null,
+    likes: null,
+    blogs: null,
+    getInfo: function() {
+      var that;
+      that = this;
+      return $.post('user/info', function(data) {
+        var key, source, value, _ref;
+        if (data.meta.status === 401) {
+          source = ($('#login_template')).html();
+          return ($('#listenr')).html(Handlebars.compile(source));
+        } else {
+          _ref = data.response.user;
+          for (key in _ref) {
+            value = _ref[key];
+            if (Listenr.User.prototype.hasOwnProperty(key)) {
+              that.set(key, value);
+            }
+          }
+          return console.log(that);
+        }
+      }, 'json');
+    }
+  });
   Listenr.Song = SC.Object.extend({
     postID: null,
     artist: null,
@@ -51,6 +76,8 @@
     }
   });
   ($(document)).ready(function() {
-    return Listenr.dashboardController.getSongs();
+    var me;
+    me = Listenr.User.create();
+    return me.getInfo();
   });
 }).call(this);

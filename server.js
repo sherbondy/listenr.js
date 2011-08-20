@@ -12,32 +12,35 @@
       secret: secrets.session_secret
     }));
     app.use(app.router);
-    return app.set('view engine', 'jade');
+    app.set('view options', {
+      layout: false
+    });
+    return app.register('.html', {
+      compile: function(str, options) {
+        return function(locals) {
+          return str;
+        };
+      }
+    });
   });
   app.configure('development', function() {
     app.use(express.static(__dirname + '/static'));
-    app.use(express.errorHandler({
+    return app.use(express.errorHandler({
       dumpExceptions: true,
       showStack: true
     }));
-    return app.set('view options', {
-      development: true
-    });
   });
   oauth_base_url = 'http://www.tumblr.com/oauth/';
   api_base_url = 'http://api.tumblr.com/v2';
   OAuth = require('oauth').OAuth;
   oa = new OAuth(oauth_base_url + 'request_token', oauth_base_url + 'access_token', secrets.oauth_consumer_key, secrets.oauth_secret_key, '1.0A', 'http://eps.local:3000/oauth/callback', 'HMAC-SHA1');
+  oa.getTumblrResource = function(req, res) {
+    return oa.getProtectedResource(api_base_url + req.url, req.method, req.session.oauth_access_token, req.session.oauth_access_token_secret, function(error, data) {
+      return res.json(JSON.parse(data));
+    });
+  };
   app.get('/', function(req, res) {
-    if (req.session.oauth_access_token && req.session.oauth_access_token_secret) {
-      return res.render('index', {
-        is_logged_in: true
-      });
-    } else {
-      return res.render('login', {
-        is_logged_in: false
-      });
-    }
+    return res.render('index.html');
   });
   app.get('/login', function(req, res) {
     var parsed_url;
@@ -66,9 +69,10 @@
     });
   });
   app.get('/user/dashboard', function(req, res) {
-    return oa.getProtectedResource(api_base_url + req.url, 'GET', req.session.oauth_access_token, req.session.oauth_access_token_secret, function(error, data) {
-      return res.json(JSON.parse(data));
-    });
+    return oa.getTumblrResource(req, res);
+  });
+  app.post('/user/info', function(req, res) {
+    return oa.getTumblrResource(req, res);
   });
   app.listen(3000);
 }).call(this);
