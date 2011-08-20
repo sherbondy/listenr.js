@@ -69,6 +69,11 @@ Listenr.dashboardController = SC.ArrayProxy.create {
   if me.getInfo()
     Listenr.dashboardController.getSongs()
 
+  ($ '#login').live 'click', (e)->
+    # to avoid breaking out of mobile app mode
+    e.preventDefault()
+    window.location = ($ this).attr 'href'
+
   ($ window).scroll (e)->
     if (($ window).scrollTop() + ($ window).height() + 150) > ($ document).height()
       # scrolled to bottom

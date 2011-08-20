@@ -98,6 +98,10 @@
     if (me.getInfo()) {
       Listenr.dashboardController.getSongs();
     }
+    ($('#login')).live('click', function(e) {
+      e.preventDefault();
+      return window.location = ($(this)).attr('href');
+    });
     return ($(window)).scroll(function(e) {
       if ((($(window)).scrollTop() + ($(window)).height() + 150) > ($(document)).height()) {
         return Listenr.dashboardController.getSongs();

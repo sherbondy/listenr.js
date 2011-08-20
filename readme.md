@@ -22,3 +22,6 @@ To run listenr.js on your own machine, move
 `server/secrets_placeholder.js` to `server/secrets.js`
 and input your own made-up session secret and your
 Tumblr OAuth Consumer Key and Secret Key.
+
+Saturday, 3:30am. Some decent progress tonight.
+Basic list of songs in Dashboard.
