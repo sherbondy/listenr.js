@@ -42,16 +42,16 @@ Listenr.Song = SC.Object.extend {
 Listenr.songs = SC.Object.create SC.MutableArray, {
   content: []
   replace: (idx, amt, objects)->
-    content.replace
+    @content.splice idx, amt, objects
 }
 
 Listenr.MusicController = SC.ArrayProxy.extend {
-  content: []
-  dashboard: false
+  content: Listenr.songs.content
+  offset: 0
+  origin: null
   url: null
 
   addSong: (song_data)->
-    console.log @content
     song = Listenr.Song.create()
     for key, value of song_data
       if Listenr.Song.prototype.hasOwnProperty key
@@ -63,15 +63,15 @@ Listenr.MusicController = SC.ArrayProxy.extend {
     song.set 'track_name', 'Unknown Song' unless song.track_name
     song.set 'album', 'Unkown Album' unless song.album
     song.set 'album_art', '/img/album.png' unless song.album_art
-    song.set 'dashboard', @dashboard
+    song.set 'dashboard', (@origin is 'dashboard')
+    song.set 'liked', (@origin is 'likes')
 
     unless @content.findProperty 'id', song.id
-      console.log song_data
       @pushObject song
 
   loading: false
 
-  getSongs: (offset=@content.length)->
+  getSongs: (offset=@offset)->
     unless @loading
       @loading = true # to avoid spawning heaps of requests
       console.log "offset #{offset}"
@@ -82,26 +82,33 @@ Listenr.MusicController = SC.ArrayProxy.extend {
         if @origin is 'likes'
           posts = data.response.liked_posts
 
+        @offset += posts.length
+
         for post in posts
           # need to explicitly check the post type
           # because liked posts can't be filtered by type
           if post.type is 'audio' then @addSong post
+
+        console.log @content
 }
 
 Listenr.dashboardController = Listenr.MusicController.create {
   url: 'user/dashboard'
-  dashboard: true
+  origin: 'dashboard'
 }
 Listenr.likesController = Listenr.MusicController.create {
   url: 'user/likes'
+  origin: 'likes'
 }
+
+Listenr.currentController = Listenr.likesController
 
 
 ($ document).ready ->
   #Listenr.dashboardController.getSongs()
   me = Listenr.User.create()
   if me.getInfo()
-    Listenr.dashboardController.getSongs()
+    Listenr.currentController.getSongs()
 
   ($ '#login').live 'click', (e)->
     # to avoid breaking out of mobile app mode
@@ -116,4 +123,4 @@ Listenr.likesController = Listenr.MusicController.create {
   ($ window).scroll (e)->
     if (($ window).scrollTop() + ($ window).height() + 150) > ($ document).height()
       # scrolled to bottom
-      Listenr.dashboardController.getSongs()
+      Listenr.currentController.getSongs()

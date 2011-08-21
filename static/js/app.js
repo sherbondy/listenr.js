@@ -47,16 +47,16 @@
   Listenr.songs = SC.Object.create(SC.MutableArray, {
     content: [],
     replace: function(idx, amt, objects) {
-      return content.replace;
+      return this.content.splice(idx, amt, objects);
     }
   });
   Listenr.MusicController = SC.ArrayProxy.extend({
-    content: [],
-    dashboard: false,
+    content: Listenr.songs.content,
+    offset: 0,
+    origin: null,
     url: null,
     addSong: function(song_data) {
       var key, song, value;
-      console.log(this.content);
       song = Listenr.Song.create();
       for (key in song_data) {
         value = song_data[key];
@@ -79,16 +79,16 @@
       if (!song.album_art) {
         song.set('album_art', '/img/album.png');
       }
-      song.set('dashboard', this.dashboard);
+      song.set('dashboard', this.origin === 'dashboard');
+      song.set('liked', this.origin === 'likes');
       if (!this.content.findProperty('id', song.id)) {
-        console.log(song_data);
         return this.pushObject(song);
       }
     },
     loading: false,
     getSongs: function(offset) {
       if (offset == null) {
-        offset = this.content.length;
+        offset = this.offset;
       }
       if (!this.loading) {
         this.loading = true;
@@ -97,34 +97,38 @@
           type: 'audio',
           offset: offset
         }, __bind(function(data) {
-          var post, posts, _i, _len, _results;
+          var post, posts, _i, _len;
           this.loading = false;
           posts = data.response.posts;
           if (this.origin === 'likes') {
             posts = data.response.liked_posts;
           }
-          _results = [];
+          this.offset += posts.length;
           for (_i = 0, _len = posts.length; _i < _len; _i++) {
             post = posts[_i];
-            _results.push(post.type === 'audio' ? this.addSong(post) : void 0);
+            if (post.type === 'audio') {
+              this.addSong(post);
+            }
           }
-          return _results;
+          return console.log(this.content);
         }, this));
       }
     }
   });
   Listenr.dashboardController = Listenr.MusicController.create({
     url: 'user/dashboard',
-    dashboard: true
+    origin: 'dashboard'
   });
   Listenr.likesController = Listenr.MusicController.create({
-    url: 'user/likes'
+    url: 'user/likes',
+    origin: 'likes'
   });
+  Listenr.currentController = Listenr.likesController;
   ($(document)).ready(function() {
     var me;
     me = Listenr.User.create();
     if (me.getInfo()) {
-      Listenr.dashboardController.getSongs();
+      Listenr.currentController.getSongs();
     }
     ($('#login')).live('click', function(e) {
       e.preventDefault();
@@ -137,7 +141,7 @@
     });
     return ($(window)).scroll(function(e) {
       if ((($(window)).scrollTop() + ($(window)).height() + 150) > ($(document)).height()) {
-        return Listenr.dashboardController.getSongs();
+        return Listenr.currentController.getSongs();
       }
     });
   });
