@@ -36,15 +36,19 @@ Listenr.Song = SC.Object.extend {
   blog_name: null
   reblog_key: null
   liked: false
-  origin: null
+  dashboard: false
 }
 
-Listenr.songs = SC.Object.create SC.MutableArray
+Listenr.songs = SC.Object.create SC.MutableArray, {
+  content: []
+  replace: (idx, amt, objects)->
+    content.replace
+}
 
 Listenr.MusicController = SC.ArrayProxy.extend {
   content: []
-
-  origin: 'dashboard' # set to dashboard by default
+  dashboard: false
+  url: null
 
   addSong: (song_data)->
     console.log @content
@@ -59,8 +63,7 @@ Listenr.MusicController = SC.ArrayProxy.extend {
     song.set 'track_name', 'Unknown Song' unless song.track_name
     song.set 'album', 'Unkown Album' unless song.album
     song.set 'album_art', '/img/album.png' unless song.album_art
-    # default origin is dashboard
-    song.set 'origin', @origin
+    song.set 'dashboard', @dashboard
 
     unless @content.findProperty 'id', song.id
       console.log song_data
@@ -73,26 +76,24 @@ Listenr.MusicController = SC.ArrayProxy.extend {
       @loading = true # to avoid spawning heaps of requests
       console.log "offset #{offset}"
 
-      audio_url = 'user/dashboard'
-      if @origin is 'likes'
-        audio_url 'user/likes'
-      else if @origin isnt 'dashboard'
-        audio_url = "blog/#{origin}"
-      console.log audio_url
-
-      $.getJSON audio_url, {type:'audio', offset:offset}, (data)=>
+      $.getJSON @url, {type:'audio', offset:offset}, (data)=>
         @loading = false
         posts = data.response.posts
         if @origin is 'likes'
           posts = data.response.liked_posts
 
         for post in posts
+          # need to explicitly check the post type
+          # because liked posts can't be filtered by type
           if post.type is 'audio' then @addSong post
 }
 
-Listenr.dashboardController = Listenr.MusicController.create()
+Listenr.dashboardController = Listenr.MusicController.create {
+  url: 'user/dashboard'
+  dashboard: true
+}
 Listenr.likesController = Listenr.MusicController.create {
-  origin: 'likes'
+  url: 'user/likes'
 }
 
 

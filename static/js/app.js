@@ -42,12 +42,18 @@
     blog_name: null,
     reblog_key: null,
     liked: false,
-    origin: null
+    dashboard: false
   });
-  Listenr.songs = SC.Object.create(SC.MutableArray);
+  Listenr.songs = SC.Object.create(SC.MutableArray, {
+    content: [],
+    replace: function(idx, amt, objects) {
+      return content.replace;
+    }
+  });
   Listenr.MusicController = SC.ArrayProxy.extend({
     content: [],
-    origin: 'dashboard',
+    dashboard: false,
+    url: null,
     addSong: function(song_data) {
       var key, song, value;
       console.log(this.content);
@@ -73,7 +79,7 @@
       if (!song.album_art) {
         song.set('album_art', '/img/album.png');
       }
-      song.set('origin', this.origin);
+      song.set('dashboard', this.dashboard);
       if (!this.content.findProperty('id', song.id)) {
         console.log(song_data);
         return this.pushObject(song);
@@ -81,21 +87,13 @@
     },
     loading: false,
     getSongs: function(offset) {
-      var audio_url;
       if (offset == null) {
         offset = this.content.length;
       }
       if (!this.loading) {
         this.loading = true;
         console.log("offset " + offset);
-        audio_url = 'user/dashboard';
-        if (this.origin === 'likes') {
-          audio_url('user/likes');
-        } else if (this.origin !== 'dashboard') {
-          audio_url = "blog/" + origin;
-        }
-        console.log(audio_url);
-        return $.getJSON(audio_url, {
+        return $.getJSON(this.url, {
           type: 'audio',
           offset: offset
         }, __bind(function(data) {
@@ -115,9 +113,12 @@
       }
     }
   });
-  Listenr.dashboardController = Listenr.MusicController.create();
+  Listenr.dashboardController = Listenr.MusicController.create({
+    url: 'user/dashboard',
+    dashboard: true
+  });
   Listenr.likesController = Listenr.MusicController.create({
-    origin: 'likes'
+    url: 'user/likes'
   });
   ($(document)).ready(function() {
     var me;
