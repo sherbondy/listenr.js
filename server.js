@@ -68,7 +68,7 @@
       }
     });
   });
-  app.get('/user/dashboard', function(req, res) {
+  app.get('/user/:location', function(req, res) {
     return oa.getTumblrResource(req, res);
   });
   app.post('/user/info', function(req, res) {

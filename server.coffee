@@ -75,7 +75,7 @@ app.get '/oauth/callback', (req, res)->
         console.log error
   )
 
-app.get '/user/dashboard', (req, res)->
+app.get '/user/:location', (req, res)->
   oa.getTumblrResource req, res
 
 app.post '/user/info', (req, res)->
