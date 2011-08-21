@@ -41,8 +41,10 @@ Listenr.Song = SC.Object.extend {
   origin: null
 }
 
-Listenr.dashboardController = SC.ArrayProxy.create {
+Listenr.MusicController = SC.ArrayProxy.extend {
   content: []
+
+  origin: 'dashboard' # set to dashboard by default
 
   addSong: (song_data)->
     song = Listenr.Song.create()
@@ -51,27 +53,40 @@ Listenr.dashboardController = SC.ArrayProxy.create {
         song.set key, value
         if key is 'audio_url'
           song.set key, value+'?plead=please-dont-download-this-or-our-lawyers-wont-let-us-host-audio'
+
     if not song.artist then song.set 'artist', 'Unkown Artist'
     if not song.track_name then song.set 'track_name', 'Unknown Song'
     if not song.album then song.set 'album', 'Unkown Album'
     if not song.album_art then song.set 'album_art', '/img/album.png'
-    song.set 'origin', 'dashboard'
-    this.pushObject song
+    # default origin is dashboard
+    song.set 'origin', @origin
+
+    @pushObject song
     console.log song_data
 
   loading: false
 
-  getSongs: (offset=this.content.length)->
+  getSongs: (offset=@content.length)->
     that = this
     if not that.loading
       that.loading = true # to avoid spawning heaps of requests
       console.log "offset #{offset}"
 
-      $.getJSON 'user/dashboard', {type:'audio', offset:offset}, (data)->
+      audio_url = 'user/dashboard'
+      if that.origin is 'likes'
+        audio_url 'user/likes'
+      else if that.origin isnt 'dashboard'
+        audio_url = "blog/#{origin}"
+      console.log audio_url
+
+      $.getJSON audio_url, {type:'audio', offset:offset}, (data)->
         that.loading = false
-        for song in data.response.posts
-          that.addSong song
+        for post in data.response.posts
+          if post.type is 'audio' then that.addSong post
 }
+
+Listenr.dashboardController = Listenr.MusicController.create()
+
 
 ($ document).ready ->
   #Listenr.dashboardController.getSongs()

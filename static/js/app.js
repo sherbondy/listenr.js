@@ -45,8 +45,9 @@
     liked: false,
     origin: null
   });
-  Listenr.dashboardController = SC.ArrayProxy.create({
+  Listenr.MusicController = SC.ArrayProxy.extend({
     content: [],
+    origin: 'dashboard',
     addSong: function(song_data) {
       var key, song, value;
       song = Listenr.Song.create();
@@ -71,13 +72,13 @@
       if (!song.album_art) {
         song.set('album_art', '/img/album.png');
       }
-      song.set('origin', 'dashboard');
+      song.set('origin', this.origin);
       this.pushObject(song);
       return console.log(song_data);
     },
     loading: false,
     getSongs: function(offset) {
-      var that;
+      var audio_url, that;
       if (offset == null) {
         offset = this.content.length;
       }
@@ -85,23 +86,31 @@
       if (!that.loading) {
         that.loading = true;
         console.log("offset " + offset);
-        return $.getJSON('user/dashboard', {
+        audio_url = 'user/dashboard';
+        if (that.origin === 'likes') {
+          audio_url('user/likes');
+        } else if (that.origin !== 'dashboard') {
+          audio_url = "blog/" + origin;
+        }
+        console.log(audio_url);
+        return $.getJSON(audio_url, {
           type: 'audio',
           offset: offset
         }, function(data) {
-          var song, _i, _len, _ref, _results;
+          var post, _i, _len, _ref, _results;
           that.loading = false;
           _ref = data.response.posts;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            song = _ref[_i];
-            _results.push(that.addSong(song));
+            post = _ref[_i];
+            _results.push(post.type === 'audio' ? that.addSong(post) : void 0);
           }
           return _results;
         });
       }
     }
   });
+  Listenr.dashboardController = Listenr.MusicController.create();
   ($(document)).ready(function() {
     var me;
     me = Listenr.User.create();
