@@ -23,7 +23,7 @@
 
     <div id="listenr">
       <script type="text/html">
-        {{#collection contentBinding="Listenr.dashboardController" tagName="ul"}}
+        {{#collection contentBinding="Listenr.currentController" tagName="ul"}}
           <a {{bindAttr href="this.content.audio_url"}}>
             <img {{bindAttr src="this.content.album_art"}}>
             <strong>{{this.content.track_name}}</strong>

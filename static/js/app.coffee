@@ -39,14 +39,16 @@ Listenr.Song = SC.Object.extend {
   dashboard: false
 }
 
-Listenr.songs = SC.Object.create SC.MutableArray, {
-  content: []
-  replace: (idx, amt, objects)->
-    @content.splice idx, amt, objects
-}
+Listenr.songs = []
 
 Listenr.MusicController = SC.ArrayProxy.extend {
-  content: Listenr.songs.content
+  content: Listenr.songs
+  propertyToFilter: null
+  filterValue: true
+  filteredContent: (->
+    @content.filterProperty @propertyToFilter, @filterValue
+  ).property '@each'
+
   offset: 0
   origin: null
   url: null
@@ -95,10 +97,12 @@ Listenr.MusicController = SC.ArrayProxy.extend {
 Listenr.dashboardController = Listenr.MusicController.create {
   url: 'user/dashboard'
   origin: 'dashboard'
+  propertyToFilter: 'dashboard'
 }
 Listenr.likesController = Listenr.MusicController.create {
   url: 'user/likes'
   origin: 'likes'
+  propertyToFilter: 'liked'
 }
 
 Listenr.currentController = Listenr.likesController

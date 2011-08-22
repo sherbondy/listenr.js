@@ -44,14 +44,14 @@
     liked: false,
     dashboard: false
   });
-  Listenr.songs = SC.Object.create(SC.MutableArray, {
-    content: [],
-    replace: function(idx, amt, objects) {
-      return this.content.splice(idx, amt, objects);
-    }
-  });
+  Listenr.songs = [];
   Listenr.MusicController = SC.ArrayProxy.extend({
-    content: Listenr.songs.content,
+    content: Listenr.songs,
+    propertyToFilter: null,
+    filterValue: true,
+    filteredContent: (function() {
+      return this.content.filterProperty(this.propertyToFilter, this.filterValue);
+    }).property('@each'),
     offset: 0,
     origin: null,
     url: null,
@@ -117,11 +117,13 @@
   });
   Listenr.dashboardController = Listenr.MusicController.create({
     url: 'user/dashboard',
-    origin: 'dashboard'
+    origin: 'dashboard',
+    propertyToFilter: 'dashboard'
   });
   Listenr.likesController = Listenr.MusicController.create({
     url: 'user/likes',
-    origin: 'likes'
+    origin: 'likes',
+    propertyToFilter: 'liked'
   });
   Listenr.currentController = Listenr.likesController;
   ($(document)).ready(function() {
