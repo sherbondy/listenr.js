@@ -45,9 +45,8 @@ Listenr.MusicController = SC.ArrayProxy.extend {
   content: Listenr.songs
   propertyToFilter: null
   filterValue: true
-  filteredContent: (->
+  filteredContent: ->
     @content.filterProperty @propertyToFilter, @filterValue
-  ).property '@each'
 
   offset: 0
   origin: null
@@ -105,7 +104,7 @@ Listenr.likesController = Listenr.MusicController.create {
   propertyToFilter: 'liked'
 }
 
-Listenr.currentController = Listenr.likesController
+Listenr.currentController = Listenr.dashboardController
 
 
 ($ document).ready ->
@@ -121,6 +120,8 @@ Listenr.currentController = Listenr.likesController
 
   ($ '#listenr li a').live 'click', (e)->
     e.preventDefault()
+    ($ '#listenr li').removeClass 'playing'
+    ($ this).parent('li').addClass 'playing'
     ($ '#player').attr 'src', ($ this).attr 'href'
     document.getElementById('player').play()
 

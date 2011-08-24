@@ -26,15 +26,24 @@ header
       padding 0
       height 48px
       border-bottom 1px solid #ccc
+      &:hover
+        background-color #069eff
+        color #fff
+
+      &.playing
+        background-position 95% center
+        background-repeat no-repeat
+        background-image  url('/img/playing.png')
+        &:hover
+          background-image url('/img/playing_white.png')
 
       & a
         display block
         text-decoration none
-        color #000
+        color inherit
         padding-bottom 4px
-        &:hover, &:hover em
-          color #fff
-          background #069eff
+        & em
+          color inherit
 
       & strong, & em
         display block

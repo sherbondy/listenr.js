@@ -49,9 +49,9 @@
     content: Listenr.songs,
     propertyToFilter: null,
     filterValue: true,
-    filteredContent: (function() {
+    filteredContent: function() {
       return this.content.filterProperty(this.propertyToFilter, this.filterValue);
-    }).property('@each'),
+    },
     offset: 0,
     origin: null,
     url: null,
@@ -125,7 +125,7 @@
     origin: 'likes',
     propertyToFilter: 'liked'
   });
-  Listenr.currentController = Listenr.likesController;
+  Listenr.currentController = Listenr.dashboardController;
   ($(document)).ready(function() {
     var me;
     me = Listenr.User.create();
@@ -138,6 +138,8 @@
     });
     ($('#listenr li a')).live('click', function(e) {
       e.preventDefault();
+      ($('#listenr li')).removeClass('playing');
+      ($(this)).parent('li').addClass('playing');
       ($('#player')).attr('src', ($(this)).attr('href'));
       return document.getElementById('player').play();
     });
